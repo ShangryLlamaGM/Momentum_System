@@ -1,0 +1,148 @@
+<section class="momentum sheet">
+  <header class="sheet-header">
+    <h1>{{actor.name}}</h1>
+  </header>
+
+  <div class="sheet-body">
+    {{!-- Anchors (CORE) --}}
+    <section>
+      <h3>{{localize "MOMENTUM.Anchors"}}</h3>
+      {{#each momentum.anchors as |it|}}
+        <article class="item-card" data-item-id="{{it.id}}">
+          <header><span class="name">{{it.name}}</span></header>
+          {{> "systems/momentum/templates/partials/track.hbs" item=it}}
+          {{#if it.system.facets.length}}
+            <div class="facets">
+              {{#each it.system.facets as |f|}}
+                <span class="facet-chip"><em>{{f.key}}{{#if f.level}}{{f.level}}{{/if}}</em></span>
+              {{/each}}
+            </div>
+          {{/if}}
+        </article>
+      {{/each}}
+    </section>
+
+    {{!-- Aspects (EDGE) --}}
+    <section>
+      <h3>{{localize "MOMENTUM.Aspects"}}</h3>
+      {{#each momentum.aspects as |it|}}
+        <article class="item-card" data-item-id="{{it.id}}">
+          <header><span class="name">{{it.name}}</span></header>
+          {{> "systems/momentum/templates/partials/track.hbs" item=it}}
+          {{#if it.system.facets.length}}
+            <div class="facets">
+              {{#each it.system.facets as |f|}}
+                <span class="facet-chip"><em>{{f.key}}{{#if f.level}}{{f.level}}{{/if}}</em></span>
+              {{/each}}
+            </div>
+          {{/if}}
+        </article>
+      {{/each}}
+    </section>
+
+    {{!-- Resources (FRAME) --}}
+    <section>
+      <h3>{{localize "MOMENTUM.Resources"}}</h3>
+      {{#each momentum.resources as |it|}}
+        <article class="item-card" data-item-id="{{it.id}}">
+          <header><span class="name">{{it.name}}</span></header>
+          {{> "systems/momentum/templates/partials/track.hbs" item=it}}
+          {{#if it.system.facets.length}}
+            <div class="facets">
+              {{#each it.system.facets as |f|}}
+                <span class="facet-chip"><em>{{f.key}}{{#if f.level}}{{f.level}}{{/if}}</em></span>
+              {{/each}}
+            </div>
+          {{/if}}
+        </article>
+      {{/each}}
+    </section>
+
+    {{!-- Currency --}}
+    <section>
+      <h3>{{localize "MOMENTUM.Currencies"}}</h3>
+      {{#each momentum.currencies as |it|}}
+        <article class="item-card" data-item-id="{{it.id}}">
+          <header>
+            <span class="name">{{it.name}}</span>
+            <label>
+              <input class="currency-amount" type="number" value="{{it.system.amount}}" />
+            </label>
+          </header>
+          {{#if it.system.facets.length}}
+            <div class="facets">
+              {{#each it.system.facets as |f|}}
+                <span class="facet-chip"><em>{{f.key}}{{#if f.level}}{{f.level}}{{/if}}</em></span>
+              {{/each}}
+            </div>
+          {{/if}}
+        </article>
+      {{/each}}
+    </section>
+
+    {{!-- Tags grouping (Assets, Boons, Banes, Wounds, Conditions, Powers) --}}
+    <section>
+      <h3>{{localize "MOMENTUM.Tags"}}</h3>
+
+      {{#if momentum.tags.assets.length}}
+        <h4>{{localize "MOMENTUM.Assets"}}</h4>
+        {{#each momentum.tags.assets as |it|}}
+          <article class="item-card" data-item-id="{{it.id}}">
+            <header><span class="name">{{it.name}}</span></header>
+            {{> "systems/momentum/templates/partials/track.hbs" item=it}}
+          </article>
+        {{/each}}
+      {{/if}}
+
+      {{#if momentum.tags.boons.length}}
+        <h4>{{localize "MOMENTUM.Boons"}}</h4>
+        {{#each momentum.tags.boons as |it|}}
+          <article class="item-card" data-item-id="{{it.id}}">
+            <header><span class="name">{{it.name}}</span></header>
+            {{> "systems/momentum/templates/partials/track.hbs" item=it}}
+          </article>
+        {{/each}}
+      {{/if}}
+
+      {{#if momentum.tags.banes.length}}
+        <h4>{{localize "MOMENTUM.Banes"}}</h4>
+        {{#each momentum.tags.banes as |it|}}
+          <article class="item-card" data-item-id="{{it.id}}">
+            <header><span class="name">{{it.name}}</span></header>
+            {{> "systems/momentum/templates/partials/track.hbs" item=it}}
+          </article>
+        {{/each}}
+      {{/if}}
+
+      {{#if momentum.tags.wounds.length}}
+        <h4>{{localize "MOMENTUM.Wounds"}}</h4>
+        {{#each momentum.tags.wounds as |it|}}
+          <article class="item-card" data-item-id="{{it.id}}">
+            <header><span class="name">{{it.name}}</span></header>
+            {{> "systems/momentum/templates/partials/track.hbs" item=it}}
+          </article>
+        {{/each}}
+      {{/if}}
+
+      {{#if momentum.tags.conditions.length}}
+        <h4>{{localize "MOMENTUM.Conditions"}}</h4>
+        {{#each momentum.tags.conditions as |it|}}
+          <article class="item-card" data-item-id="{{it.id}}">
+            <header><span class="name">{{it.name}}</span></header>
+            {{> "systems/momentum/templates/partials/track.hbs" item=it}}
+          </article>
+        {{/each}}
+      {{/if}}
+
+      {{#if momentum.tags.powers.length}}
+        <h4>{{localize "MOMENTUM.Powers"}}</h4>
+        {{#each momentum.tags.powers as |it|}}
+          <article class="item-card" data-item-id="{{it.id}}">
+            <header><span class="name">{{it.name}}</span></header>
+            {{> "systems/momentum/templates/partials/track.hbs" item=it}}
+          </article>
+        {{/each}}
+      {{/if}}
+    </section>
+  </div>
+</section>

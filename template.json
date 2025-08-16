@@ -1,0 +1,244 @@
+{
+  "Actor": {
+    "types": [
+      "character",
+      "threat"
+    ],
+    "character": {},
+    "threat": {}
+  },
+  "Item": {
+    "types": [
+      "anchor",
+      "asset",
+      "aspect",
+      "boon",
+      "bane",
+      "feature",
+      "power",
+      "currency",
+      "wound",
+      "condition",
+      "resource",
+      "facet"
+    ],
+    "anchor": {
+      "track": {
+        "enabled": true,
+        "length": 6,
+        "shape": "circle",
+        "color": "red",
+        "showValueBadge": true,
+        "badgePosition": "before",
+        "states": []
+      },
+      "facets": []
+    },
+    "asset": {
+      "track": {
+        "enabled": true,
+        "length": 6,
+        "shape": "triangle",
+        "color": "green",
+        "showValueBadge": true,
+        "badgePosition": "after",
+        "states": []
+      },
+      "facets": [],
+      "links": {
+        "parent": {},
+        "contains": {
+          "tags": [],
+          "features": [],
+          "powers": []
+        }
+      }
+    },
+    "aspect": {
+      "track": {
+        "enabled": true,
+        "length": 6,
+        "shape": "triangle",
+        "color": "green",
+        "showValueBadge": true,
+        "badgePosition": "after",
+        "states": []
+      },
+      "facets": [],
+      "links": {
+        "parent": {},
+        "contains": {
+          "tags": [],
+          "features": [],
+          "powers": []
+        }
+      }
+    },
+    "boon": {
+      "track": {
+        "enabled": true,
+        "length": 6,
+        "shape": "triangle",
+        "color": "green",
+        "showValueBadge": false,
+        "badgePosition": "after",
+        "states": []
+      },
+      "facets": [],
+      "links": {
+        "parent": {},
+        "contains": {
+          "tags": [],
+          "features": [],
+          "powers": []
+        }
+      }
+    },
+    "bane": {
+      "track": {
+        "enabled": true,
+        "length": 6,
+        "shape": "triangle",
+        "color": "green",
+        "showValueBadge": false,
+        "badgePosition": "after",
+        "states": []
+      },
+      "facets": [],
+      "links": {
+        "parent": {},
+        "contains": {
+          "tags": [],
+          "features": [],
+          "powers": []
+        }
+      }
+    },
+    "feature": {
+      "track": {
+        "enabled": false,
+        "length": 0,
+        "shape": "triangle",
+        "color": "green",
+        "showValueBadge": false,
+        "badgePosition": "after",
+        "states": []
+      },
+      "facets": [],
+      "links": {
+        "parent": {},
+        "contains": {
+          "tags": [],
+          "features": [],
+          "powers": []
+        }
+      }
+    },
+    "power": {
+      "track": {
+        "enabled": true,
+        "length": 6,
+        "shape": "triangle",
+        "color": "green",
+        "showValueBadge": true,
+        "badgePosition": "after",
+        "states": []
+      },
+      "facets": [],
+      "links": {
+        "parent": {},
+        "contains": {
+          "tags": [],
+          "features": [],
+          "powers": []
+        }
+      }
+    },
+    "currency": {
+      "track": {
+        "enabled": false,
+        "length": 0,
+        "shape": "square",
+        "color": "blue",
+        "showValueBadge": false,
+        "badgePosition": "after",
+        "states": []
+      },
+      "facets": [],
+      "amount": 0
+    },
+    "wound": {
+      "track": {
+        "enabled": true,
+        "length": 6,
+        "shape": "triangle",
+        "color": "green",
+        "showValueBadge": true,
+        "badgePosition": "after",
+        "states": []
+      },
+      "facets": [],
+      "links": {
+        "parent": {},
+        "contains": {
+          "tags": [],
+          "features": [],
+          "powers": []
+        }
+      }
+    },
+    "condition": {
+      "track": {
+        "enabled": true,
+        "length": 6,
+        "shape": "triangle",
+        "color": "green",
+        "showValueBadge": true,
+        "badgePosition": "after",
+        "states": []
+      },
+      "facets": [],
+      "links": {
+        "parent": {},
+        "contains": {
+          "tags": [],
+          "features": [],
+          "powers": []
+        }
+      }
+    },
+    "resource": {
+      "track": {
+        "enabled": true,
+        "length": 6,
+        "shape": "square",
+        "color": "blue",
+        "showValueBadge": true,
+        "badgePosition": "after",
+        "states": []
+      },
+      "facets": [],
+      "links": {
+        "parent": {},
+        "contains": {
+          "tags": [],
+          "features": [],
+          "powers": []
+        }
+      }
+    },
+    "facet": {
+      "track": {
+        "enabled": false,
+        "length": 0,
+        "shape": "triangle",
+        "color": "green",
+        "showValueBadge": false,
+        "badgePosition": "after",
+        "states": []
+      },
+      "key": "",
+      "level": 1
+    }
+  }
+}
