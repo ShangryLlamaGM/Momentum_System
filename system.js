@@ -1,39 +1,38 @@
-// system.js — delta 0.0.6 (no system.json changes)
-// Ensures the sheet is renderable by mixing in Handlebars (with a safe fallback) and using a single TEMPLATE.
+// system.js — delta 0.0.7
+// - Uses v13 namespaced APIs:
+//   * foundry.documents.collections.Actors.registerSheet(...)
+//   * foundry.applications.handlebars.loadTemplates([...])
+//   * foundry.applications.handlebars.renderTemplate(...)
+// - Includes a Handlebars mixin fallback so the sheet is always renderable.
+// - No system.json changes required.
 
 const ID = "momentum";
 
-/** ---- Safe Handlebars mixin fallback ----
- * v13 expects ApplicationV2-based apps to implement _renderHTML/_replaceHTML.
- * If foundry.applications.api.HandlebarsApplicationMixin is unavailable for any reason,
- * we provide a tiny fallback that renders a single Handlebars TEMPLATE and swaps it in.
- */
+/** ---- Handlebars mixin (with safe fallback) ---- */
 const HB_MIXIN = (function() {
-  const core = foundry?.applications?.api;
-  if (core?.HandlebarsApplicationMixin) return core.HandlebarsApplicationMixin;
+  const api = foundry?.applications?.api;
+  const hb = foundry?.applications?.handlebars;
+  if (api?.HandlebarsApplicationMixin) return api.HandlebarsApplicationMixin;
   console.warn(`${ID} | HandlebarsApplicationMixin not found; using fallback renderer.`);
   return (Base) => class extends Base {
-    // Expect subclasses to define static TEMPLATE
     static get TEMPLATE() { return this._TEMPLATE ?? ""; }
     static set TEMPLATE(v) { this._TEMPLATE = v; }
     async _renderHTML(_options) {
       const ctx = await this._prepareContext(_options);
       const tpl = this.constructor.TEMPLATE;
       if (!tpl) throw new Error(`${ID} | No TEMPLATE defined for ${this.constructor.name}`);
-      const html = await renderTemplate(tpl, ctx);
-      // Return a DocumentFragment for parity with mixin behavior
-      const frag = document.createRange().createContextualFragment(html);
-      return frag;
+      const render = hb?.renderTemplate ?? renderTemplate; // prefer namespaced
+      const html = await render(tpl, ctx);
+      return document.createRange().createContextualFragment(html);
     }
     async _replaceHTML(result, _options) {
-      // Initial attach or update
       let el = this.element;
       if (!el) {
         el = document.createElement("section");
         el.classList.add(...(this.options?.classes ?? []));
         this.element = el;
       } else {
-        el.innerHTML = ""; // clear
+        el.innerHTML = "";
       }
       el.append(result);
       return el;
@@ -41,7 +40,7 @@ const HB_MIXIN = (function() {
   };
 })();
 
-/** Utilities for track states */
+/** Track helpers */
 function ensureStatesArray(item) {
   const sys = item.system ?? {};
   const tr = sys.track ?? {};
@@ -83,7 +82,6 @@ class MomentumActorSheet extends HB_MIXIN(foundry.applications.sheets.ActorSheet
     window: { title: "Momentum Actor" }
   });
 
-  // Single-template rendering (keeps things simple & robust)
   static TEMPLATE = "systems/momentum/templates/sheets/actor-basic.hbs";
 
   async _prepareContext(_options) {
@@ -196,13 +194,14 @@ class MomentumActorSheet extends HB_MIXIN(foundry.applications.sheets.ActorSheet
 }
 
 Hooks.once("init", async function() {
-  console.log(`${ID} | Initializing AppV2 sheet (delta 0.0.6)`);
+  console.log(`${ID} | Initializing AppV2 sheet (delta 0.0.7)`);
 
-  // Register our V2 sheet as default (no system.json edits required)
-  Actors.registerSheet(ID, MomentumActorSheet, { makeDefault: true });
+  // Namespaced registration (v13+)
+  foundry.documents.collections.Actors.registerSheet(ID, MomentumActorSheet, { makeDefault: true });
 
-  // Preload the partial used by the actor template
-  await loadTemplates([
+  // Prefer namespaced loadTemplates
+  const load = foundry?.applications?.handlebars?.loadTemplates ?? loadTemplates;
+  await load([
     "systems/momentum/templates/partials/track.hbs"
   ]);
 });
