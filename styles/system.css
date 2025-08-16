@@ -35,11 +35,9 @@
 .track-cells { display: inline-flex; gap: 0.25rem; }
 
 .track-cell {
-  width: 18px;
-  height: 18px;
-  position: relative;
+  width: 18px; height: 18px; position: relative;
   border: 2px solid var(--border);
-  border-radius: 4px; /* overridden by shape */
+  border-radius: 4px; /* will be overridden per shape */
   cursor: pointer;
   box-sizing: border-box;
 }
@@ -49,45 +47,38 @@
 
 /* Shapes */
 .shape-circle  { border-radius: 9999px; }
-.shape-triangle {
-  width: 0; height: 0;
-  border-left: 9px solid transparent; border-right: 9px solid transparent;
-  border-bottom: 16px solid var(--border);
-  border-radius: 0;
+.shape-triangle { 
+  width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent;
+  border-bottom: 16px solid var(--border); 
+  border-radius: 0; 
 }
 .shape-square  { border-radius: 3px; }
 
 /* Colors per family */
-.color-core  { --accent: var(--core-color); }
-.color-edge  { --accent: var(--edge-color); }
+.color-core { --accent: var(--core-color); }
+.color-edge { --accent: var(--edge-color); }
 .color-frame { --accent: var(--frame-color); }
 
-/* States (generic) */
-.track-cell.state-empty   { background: transparent; }
+/* States */
+.track-cell.state-empty { background: transparent; }
 .track-cell.state-outline { box-shadow: inset 0 0 0 2px var(--accent); }
-.track-cell.state-fill    { background: var(--accent); }
+.track-cell.state-fill { background: var(--accent); }
 .track-cell.state-slash::after,
 .track-cell.state-cross::before,
 .track-cell.state-cross::after {
-  content: "";
-  position: absolute;
-  left: 2px; right: 2px; top: 50%;
-  height: 2px;
-  background: var(--accent);
+  content: ""; position: absolute; left: 2px; right: 2px; top: 50%; height: 2px; background: var(--accent);
 }
 .track-cell.state-cross::before { transform: rotate(45deg); }
-.track-cell.state-cross::after  { transform: rotate(-45deg); } /* ← fixed missing dot */
+.track-cell.state-cross::after  { transform: rotate(-45deg); } /* fixed */
 .track-cell.state-slash::after  { transform: rotate(-24deg); }
 
-/* Triangle special-case: emulate states with borders/pseudo-lines */
+/* Triangle special-case: mimic state styles with outlines/fills on pseudo-element */
 .shape-triangle.state-outline { border-bottom-color: var(--accent); }
-.shape-triangle.state-fill    { border-bottom-color: var(--accent); }
+.shape-triangle.state-fill { border-bottom-color: var(--accent); }
 .shape-triangle.state-slash::after,
 .shape-triangle.state-cross::before,
 .shape-triangle.state-cross::after {
-  content: "";
-  position: absolute;
-  width: 18px; height: 2px; background: var(--accent);
+  content: ""; position: absolute; width: 18px; height: 2px; background: var(--accent);
   left: -9px; top: 7px;
 }
 .shape-triangle.state-cross::before { transform: rotate(45deg); }
