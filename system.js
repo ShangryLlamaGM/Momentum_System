@@ -1,7 +1,47 @@
-// system.js (v0.0.4) — ApplicationV2-based
+// system.js — delta 0.0.6 (no system.json changes)
+// Ensures the sheet is renderable by mixing in Handlebars (with a safe fallback) and using a single TEMPLATE.
+
 const ID = "momentum";
 
-/** Utility: normalize states array to desired length */
+/** ---- Safe Handlebars mixin fallback ----
+ * v13 expects ApplicationV2-based apps to implement _renderHTML/_replaceHTML.
+ * If foundry.applications.api.HandlebarsApplicationMixin is unavailable for any reason,
+ * we provide a tiny fallback that renders a single Handlebars TEMPLATE and swaps it in.
+ */
+const HB_MIXIN = (function() {
+  const core = foundry?.applications?.api;
+  if (core?.HandlebarsApplicationMixin) return core.HandlebarsApplicationMixin;
+  console.warn(`${ID} | HandlebarsApplicationMixin not found; using fallback renderer.`);
+  return (Base) => class extends Base {
+    // Expect subclasses to define static TEMPLATE
+    static get TEMPLATE() { return this._TEMPLATE ?? ""; }
+    static set TEMPLATE(v) { this._TEMPLATE = v; }
+    async _renderHTML(_options) {
+      const ctx = await this._prepareContext(_options);
+      const tpl = this.constructor.TEMPLATE;
+      if (!tpl) throw new Error(`${ID} | No TEMPLATE defined for ${this.constructor.name}`);
+      const html = await renderTemplate(tpl, ctx);
+      // Return a DocumentFragment for parity with mixin behavior
+      const frag = document.createRange().createContextualFragment(html);
+      return frag;
+    }
+    async _replaceHTML(result, _options) {
+      // Initial attach or update
+      let el = this.element;
+      if (!el) {
+        el = document.createElement("section");
+        el.classList.add(...(this.options?.classes ?? []));
+        this.element = el;
+      } else {
+        el.innerHTML = ""; // clear
+      }
+      el.append(result);
+      return el;
+    }
+  };
+})();
+
+/** Utilities for track states */
 function ensureStatesArray(item) {
   const sys = item.system ?? {};
   const tr = sys.track ?? {};
@@ -11,8 +51,6 @@ function ensureStatesArray(item) {
   if (states.length < len) states = states.concat(Array(len - states.length).fill("empty"));
   return states;
 }
-
-/** Compute display value: +1 per outline, -1 per fill */
 function computeTrackValue(states) {
   let v = 0;
   for (const s of states) {
@@ -21,8 +59,6 @@ function computeTrackValue(states) {
   }
   return v;
 }
-
-/** Map event -> action */
 function actionFromEvent(ev) {
   const isRight = ev.type === "contextmenu" || ev.button === 2;
   const shift = ev.shiftKey === true;
@@ -32,16 +68,14 @@ function actionFromEvent(ev) {
   if (isRight && shift) return "cross";
   return null;
 }
-
-/** Toggle to target or empty */
 function nextStateFor(action, current) {
   const target = { outline: "outline", fill: "fill", slash: "slash", cross: "cross" }[action];
   if (!target) return current;
   return current === target ? "empty" : target;
 }
 
-// --- Actor Sheet (ApplicationV2) ---
-class MomentumActorSheet extends foundry.applications.sheets.ActorSheetV2 {
+// --- Actor Sheet (ApplicationV2 + Handlebars or fallback) ---
+class MomentumActorSheet extends HB_MIXIN(foundry.applications.sheets.ActorSheetV2) {
   static DEFAULT_OPTIONS = foundry.utils.mergeObject(super.DEFAULT_OPTIONS, {
     id: "momentum-actor-sheet",
     classes: ["momentum", "sheet", "actor"],
@@ -49,12 +83,9 @@ class MomentumActorSheet extends foundry.applications.sheets.ActorSheetV2 {
     window: { title: "Momentum Actor" }
   });
 
-  // Handlebars parts rendered by this sheet
-  static PARTS = {
-    body: { template: "systems/momentum/templates/sheets/actor-basic.hbs", scrollable: [".sheet-body"] }
-  };
+  // Single-template rendering (keeps things simple & robust)
+  static TEMPLATE = "systems/momentum/templates/sheets/actor-basic.hbs";
 
-  // Prepare render context (replaces getData in v1)
   async _prepareContext(_options) {
     const context = await super._prepareContext(_options);
     const items = this.actor.items.contents;
@@ -75,7 +106,6 @@ class MomentumActorSheet extends foundry.applications.sheets.ActorSheetV2 {
       }
     };
 
-    // Precompute track states & values
     for (const it of items) {
       const states = ensureStatesArray(it);
       const color = it.system?.track?.color ?? "green";
@@ -90,19 +120,16 @@ class MomentumActorSheet extends foundry.applications.sheets.ActorSheetV2 {
     return context;
   }
 
-  // Bind listeners after render (replaces activateListeners in v1)
   async _postRender(context, options) {
-    await super._postRender(context, options);
+    await super._postRender?.(context, options);
     const root = this.element;
 
-    // Track clicks: left/shift-left/right/shift-right
     root.querySelectorAll(".track-cell").forEach((cell) => {
       cell.addEventListener("contextmenu", (ev) => ev.preventDefault());
       cell.addEventListener("click", (ev) => this.#onTrackClick(ev));
       cell.addEventListener("mouseup", (ev) => { if (ev.button === 2) this.#onTrackClick(ev); });
     });
 
-    // Currency: direct edit + mouse wheel (Shift = ±10)
     root.querySelectorAll(".currency-amount").forEach((input) => {
       input.addEventListener("change", (ev) => this.#onCurrencyChange(ev));
       input.addEventListener("wheel", (ev) => this.#onCurrencyWheel(ev));
@@ -130,7 +157,7 @@ class MomentumActorSheet extends foundry.applications.sheets.ActorSheetV2 {
     const badge = card.querySelector(".track-badge-value");
     if (badge) badge.textContent = String(v);
 
-    el.classList.remove("state-empty", "state-outline", "state-slash", "state-cross", "state-fill");
+    el.classList.remove("state-empty","state-outline","state-slash","state-cross","state-fill");
     el.classList.add(`state-${states[idx]}`);
   }
 
@@ -162,35 +189,21 @@ class MomentumActorSheet extends foundry.applications.sheets.ActorSheetV2 {
     await item.update({ "system.amount": next });
   }
 
-  // Drag+drop items (V2 gives you the resolved Item)
   async _onDropItem(event, item) {
-    if (item?.parent?.id === this.actor.id) return super._onDropItem(event, item); // sorting existing
+    if (item?.parent?.id === this.actor.id) return super._onDropItem(event, item);
     return this.actor.createEmbeddedDocuments("Item", [item.toObject()]);
   }
 }
 
 Hooks.once("init", async function() {
-  console.log(`${ID} | Initializing v13 AppV2 (0.0.4)`);
+  console.log(`${ID} | Initializing AppV2 sheet (delta 0.0.6)`);
 
-  // World settings (unchanged)
-  game.settings.register(ID, "enableEdges", {
-    name: "Enable EDGEs",
-    hint: "Turn on optional EDGE rules/components (GREEN, TRIANGLE).",
-    scope: "world", config: true, type: Boolean, default: true
-  });
-  game.settings.register(ID, "enableFrames", {
-    name: "Enable FRAMEs",
-    hint: "Turn on optional FRAME modules (BLUE, SQUARE).",
-    scope: "world", config: true, type: Boolean, default: true
-  });
+  // Register our V2 sheet as default (no system.json edits required)
+  Actors.registerSheet(ID, MomentumActorSheet, { makeDefault: true });
 
-  // Register our V2 sheet as the default
-  foundry.documents.collections.Actors.registerSheet(ID, MomentumActorSheet, { makeDefault: true });
-
-  // Preload templates/partials used by the sheet
+  // Preload the partial used by the actor template
   await loadTemplates([
-    "systems/momentum/templates/partials/track.hbs",
-    "systems/momentum/templates/sheets/actor-basic.hbs"
+    "systems/momentum/templates/partials/track.hbs"
   ]);
 });
 
