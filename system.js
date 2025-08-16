@@ -1,16 +1,14 @@
-// system.js
+// system.js (v0.0.4) — ApplicationV2-based
 const ID = "momentum";
 
-/** Utility: default states array */
+/** Utility: normalize states array to desired length */
 function ensureStatesArray(item) {
   const sys = item.system ?? {};
   const tr = sys.track ?? {};
   if (!tr.enabled) return [];
   const len = Math.max(0, Number(tr.length) || 0);
   let states = Array.isArray(tr.states) ? tr.states.slice(0, len) : [];
-  if (states.length < len) {
-    states = states.concat(Array(len - states.length).fill("empty"));
-  }
+  if (states.length < len) states = states.concat(Array(len - states.length).fill("empty"));
   return states;
 }
 
@@ -24,50 +22,45 @@ function computeTrackValue(states) {
   return v;
 }
 
-/** Apply state toggle rules */
-function nextStateFor(action, current) {
-  // allowed states: empty | outline | slash | cross | fill
-  const target = {
-    "outline": "outline",
-    "fill": "fill",
-    "slash": "slash",
-    "cross": "cross"
-  }[action];
-
-  if (!target) return current;
-  // toggle: if already that state -> empty; else -> that state
-  return current === target ? "empty" : target;
-}
-
-/** Map DOM event to action */
+/** Map event -> action */
 function actionFromEvent(ev) {
   const isRight = ev.type === "contextmenu" || ev.button === 2;
   const shift = ev.shiftKey === true;
-  if (!isRight && !shift) return "outline";       // left click
-  if (isRight && !shift) return "fill";          // right click
-  if (!isRight && shift) return "slash";         // shift-left
-  if (isRight && shift) return "cross";          // shift-right
+  if (!isRight && !shift) return "outline";
+  if (isRight && !shift) return "fill";
+  if (!isRight && shift) return "slash";
+  if (isRight && shift) return "cross";
   return null;
 }
 
-// --- Simple Actor Sheet with modular sections ---
-class MomentumActorSheet extends ActorSheet {
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["momentum", "sheet", "actor"],
-      template: "systems/momentum/templates/sheets/actor-basic.hbs",
-      width: 760,
-      height: 560,
-      resizable: true
-    });
-  }
+/** Toggle to target or empty */
+function nextStateFor(action, current) {
+  const target = { outline: "outline", fill: "fill", slash: "slash", cross: "cross" }[action];
+  if (!target) return current;
+  return current === target ? "empty" : target;
+}
 
-  async getData(options) {
-    const ctx = await super.getData(options);
-    // Partition items by type for basic modules
+// --- Actor Sheet (ApplicationV2) ---
+class MomentumActorSheet extends foundry.applications.sheets.ActorSheetV2 {
+  static DEFAULT_OPTIONS = foundry.utils.mergeObject(super.DEFAULT_OPTIONS, {
+    id: "momentum-actor-sheet",
+    classes: ["momentum", "sheet", "actor"],
+    position: { width: 760, height: 560 },
+    window: { title: "Momentum Actor" }
+  });
+
+  // Handlebars parts rendered by this sheet
+  static PARTS = {
+    body: { template: "systems/momentum/templates/sheets/actor-basic.hbs", scrollable: [".sheet-body"] }
+  };
+
+  // Prepare render context (replaces getData in v1)
+  async _prepareContext(_options) {
+    const context = await super._prepareContext(_options);
     const items = this.actor.items.contents;
-    function byType(t) { return items.filter(i => i.type === t); }
-    ctx.momentum = {
+    const byType = (t) => items.filter((i) => i.type === t);
+
+    context.momentum = {
       anchors: byType("anchor"),
       aspects: byType("aspect"),
       resources: byType("resource"),
@@ -81,123 +74,120 @@ class MomentumActorSheet extends ActorSheet {
         powers: byType("power")
       }
     };
-    // Precompute track states & values for rendering
+
+    // Precompute track states & values
     for (const it of items) {
       const states = ensureStatesArray(it);
-      const color = (it.system?.track?.color ?? "green");
+      const color = it.system?.track?.color ?? "green";
       const colorFamily = color === "red" ? "core" : (color === "green" ? "edge" : "frame");
       if (it.system.track) {
-        it.system.track.states = states; // ensure length
+        it.system.track.states = states;
         it.system.track.colorFamily = colorFamily;
       }
       it.system._computedValue = computeTrackValue(states);
     }
-    return ctx;
+
+    return context;
   }
 
-  activateListeners(html) {
-    super.activateListeners(html);
+  // Bind listeners after render (replaces activateListeners in v1)
+  async _postRender(context, options) {
+    await super._postRender(context, options);
+    const root = this.element;
 
-    // Prevent default context-menu on track cells
-    html.on("contextmenu", ".track-cell", ev => ev.preventDefault());
-
-    // Track interactions
-    html.on("click contextmenu", ".track-cell", async ev => {
-      ev.preventDefault();
-      const el = ev.currentTarget;
-      const idx = Number(el.dataset.index || 0);
-      const card = el.closest("[data-item-id]");
-      const itemId = card?.dataset.itemId;
-      if (!itemId) return;
-
-      const item = this.actor.items.get(itemId);
-      if (!item) return;
-      const states = ensureStatesArray(item);
-
-      const action = actionFromEvent(ev);
-      if (!action) return;
-
-      states[idx] = nextStateFor(action, states[idx]);
-      await item.update({ "system.track.states": states });
-
-      // Update badge for visual feedback
-      const v = computeTrackValue(states);
-      const badge = html.find(`[data-item-id="${itemId}"] .track-badge-value`);
-      if (badge.length) badge.text(v);
-      // Update CSS classes for the cell
-      const $cell = $(el);
-      $cell.removeClass("state-empty state-outline state-slash state-cross state-fill")
-           .addClass(`state-${states[idx]}`);
+    // Track clicks: left/shift-left/right/shift-right
+    root.querySelectorAll(".track-cell").forEach((cell) => {
+      cell.addEventListener("contextmenu", (ev) => ev.preventDefault());
+      cell.addEventListener("click", (ev) => this.#onTrackClick(ev));
+      cell.addEventListener("mouseup", (ev) => { if (ev.button === 2) this.#onTrackClick(ev); });
     });
 
-    // Currency amount change
-    html.on("change", ".currency-amount", async ev => {
-      const input = ev.currentTarget;
-      const card = input.closest("[data-item-id]");
-      const itemId = card?.dataset.itemId;
-      if (!itemId) return;
-
-      const item = this.actor.items.get(itemId);
-      if (!item) return;
-      const val = parseFloat(input.value || "0") || 0;
-      await item.update({ "system.amount": val });
-    });
-
-    // Currency amount mouse wheel
-    html.on("wheel", ".currency-amount", async ev => {
-      ev.preventDefault();
-      ev.stopPropagation();
-      const input = ev.currentTarget;
-      const card = input.closest("[data-item-id]");
-      const itemId = card?.dataset.itemId;
-      if (!itemId) return;
-      const item = this.actor.items.get(itemId);
-      if (!item) return;
-      const delta = ev.deltaY < 0 ? 1 : -1; // up = +1, down = -1
-      const step = ev.shiftKey ? 10 : 1;
-      const current = parseFloat(input.value || "0") || 0;
-      const next = current + delta * step;
-      input.value = next;
-      await item.update({ "system.amount": next });
+    // Currency: direct edit + mouse wheel (Shift = ±10)
+    root.querySelectorAll(".currency-amount").forEach((input) => {
+      input.addEventListener("change", (ev) => this.#onCurrencyChange(ev));
+      input.addEventListener("wheel", (ev) => this.#onCurrencyWheel(ev));
     });
   }
 
-  /** Basic onDrop: create embedded item as-is */
-  async _onDrop(event) {
-    const data = TextEditor.getDragEventData(event);
-    if (data.type !== "Item") return super._onDrop(event);
-    const item = await Item.implementation.fromDropData(data);
+  async #onTrackClick(ev) {
+    ev.preventDefault();
+    const el = ev.currentTarget;
+    const idx = Number(el.dataset.index || 0);
+    const card = el.closest("[data-item-id]");
+    const itemId = card?.dataset.itemId;
+    if (!itemId) return;
+    const item = this.actor.items.get(itemId);
     if (!item) return;
+
+    const states = ensureStatesArray(item);
+    const action = actionFromEvent(ev);
+    if (!action) return;
+
+    states[idx] = nextStateFor(action, states[idx]);
+    await item.update({ "system.track.states": states });
+
+    const v = computeTrackValue(states);
+    const badge = card.querySelector(".track-badge-value");
+    if (badge) badge.textContent = String(v);
+
+    el.classList.remove("state-empty", "state-outline", "state-slash", "state-cross", "state-fill");
+    el.classList.add(`state-${states[idx]}`);
+  }
+
+  async #onCurrencyChange(ev) {
+    const input = ev.currentTarget;
+    const card = input.closest("[data-item-id]");
+    const itemId = card?.dataset.itemId;
+    if (!itemId) return;
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+    const val = parseFloat(input.value || "0") || 0;
+    await item.update({ "system.amount": val });
+  }
+
+  async #onCurrencyWheel(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const input = ev.currentTarget;
+    const card = input.closest("[data-item-id]");
+    const itemId = card?.dataset.itemId;
+    if (!itemId) return;
+    const item = this.actor.items.get(itemId);
+    if (!item) return;
+    const delta = ev.deltaY < 0 ? 1 : -1;
+    const step = ev.shiftKey ? 10 : 1;
+    const current = parseFloat(input.value || "0") || 0;
+    const next = current + delta * step;
+    input.value = String(next);
+    await item.update({ "system.amount": next });
+  }
+
+  // Drag+drop items (V2 gives you the resolved Item)
+  async _onDropItem(event, item) {
+    if (item?.parent?.id === this.actor.id) return super._onDropItem(event, item); // sorting existing
     return this.actor.createEmbeddedDocuments("Item", [item.toObject()]);
   }
 }
 
 Hooks.once("init", async function() {
-  console.log(`${ID} | Initializing v13 GO build (0.0.3)`);
+  console.log(`${ID} | Initializing v13 AppV2 (0.0.4)`);
 
+  // World settings (unchanged)
   game.settings.register(ID, "enableEdges", {
     name: "Enable EDGEs",
     hint: "Turn on optional EDGE rules/components (GREEN, TRIANGLE).",
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: true
+    scope: "world", config: true, type: Boolean, default: true
   });
-
   game.settings.register(ID, "enableFrames", {
     name: "Enable FRAMEs",
     hint: "Turn on optional FRAME modules (BLUE, SQUARE).",
-    scope: "world",
-    config: true,
-    type: Boolean,
-    default: true
+    scope: "world", config: true, type: Boolean, default: true
   });
 
-  // Use our basic sheet for all actor types by default
-  Actors.unregisterSheet("core", ActorSheet);
-  Actors.registerSheet(ID, MomentumActorSheet, { makeDefault: true });
+  // Register our V2 sheet as the default
+  foundry.documents.collections.Actors.registerSheet(ID, MomentumActorSheet, { makeDefault: true });
 
-  // Preload templates (partials + sheet)
+  // Preload templates/partials used by the sheet
   await loadTemplates([
     "systems/momentum/templates/partials/track.hbs",
     "systems/momentum/templates/sheets/actor-basic.hbs"
@@ -205,5 +195,5 @@ Hooks.once("init", async function() {
 });
 
 Hooks.once("ready", function() {
-  console.log(`${ID} | Ready`);
+  console.log(`${ID} | Ready (AppV2)`);
 });
