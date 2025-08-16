@@ -10,7 +10,7 @@
     }
   ],
   "url": "https://example.com",
-  "manifest": "https://raw.githubusercontent.com/ShangryLlamaGM/Momentum_System/refs/heads/main/system.json",
+  "manifest": "https://raw.githubusercontent.com/ShangryLlamaGM/Momentum_System/main/system.json",
   "download": "https://github.com/ShangryLlamaGM/Momentum_System/archive/refs/heads/main.zip",
   "compatibility": {
     "minimum": "13",
