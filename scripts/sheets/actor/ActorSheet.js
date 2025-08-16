@@ -1,10 +1,9 @@
-import { DocumentSheetV2 } from foundry.applications.api;
 import { sysPath } from "../../core/paths.js";
 import { ensureTrackStates, groupByTypes } from "../../util/items.js";
 import { initTrack, computeTrackValue, renderTrackValueBadge } from "../../ui/components/track.js";
 import { qsa } from "../../util/dom.js";
 
-export class MomentumActorSheet extends DocumentSheetV2 {
+export class MomentumActorSheet extends foundry.applications.api.DocumentSheetV2 {
   static get DEFAULT_OPTIONS() {
     return foundry.utils.mergeObject(super.DEFAULT_OPTIONS, {
       id: "momentum-actor-sheet",

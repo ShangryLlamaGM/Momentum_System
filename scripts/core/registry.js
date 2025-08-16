@@ -1,9 +1,14 @@
+// scripts/core/registry.js
 import { NAMESPACE } from "../core/constants.js";
 import { MomentumActorSheet } from "../sheets/actor/ActorSheet.js";
 import { MomentumItemSheet } from "../sheets/item/ItemSheet.js";
 
+/**
+ * Register Momentum sheets for Foundry v13 using DocumentSheetConfig.
+ * Adds labels and explicit types so they appear in Configure Sheets and can be defaults.
+ */
 export function registerSheets() {
-  // Actor sheets: explicitly list your Actor types so they show up in the defaults UI
+  // Actor sheets
   DocumentSheetConfig.registerSheet(
     foundry.documents.Actor,
     NAMESPACE,
@@ -15,7 +20,7 @@ export function registerSheets() {
     }
   );
 
-  // Item sheets: list every item type your system supports so each can choose this sheet
+  // Item sheets
   DocumentSheetConfig.registerSheet(
     foundry.documents.Item,
     NAMESPACE,
