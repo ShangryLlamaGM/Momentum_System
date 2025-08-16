@@ -12,15 +12,18 @@ export class MomentumActorSheet extends foundry.applications.api.DocumentSheetV2
     });
   }
 
-  static TEMPLATE = sysPath("templates/sheets/actor.hbs");
+  // LAZY: compute at runtime so we don't access game.system during module eval
+  static get TEMPLATE() { return sysPath("templates/sheets/actor.hbs"); }
 
   async _prepareContext(options) {
     const ctx = await super._prepareContext(options);
     const items = Array.from(this.document.items ?? []);
-    const groups = groupByTypes(items, [
-      "anchor","aspect","resource","asset",
-      "boon","bane","wound","condition","power","tag","facet","currency"
-    ]);
+    const groups = {
+      anchor:[], aspect:[], resource:[], asset:[],
+      boon:[], bane:[], wound:[], condition:[], power:[],
+      tag:[], facet:[], currency:[]
+    };
+    for (const it of items) if (groups.hasOwnProperty(it.type)) groups[it.type].push(it);
 
     const prep = (arr) => arr.map(it => {
       const v = foundry.utils.duplicate(it);
@@ -64,7 +67,11 @@ export class MomentumActorSheet extends foundry.applications.api.DocumentSheetV2
       if (!track) return;
 
       initTrack(card, async (index, action) => {
-        const states = ensureTrackStates(item);
+        const states = (item.system?.track?.states ?? []).slice();
+        const len = Number(item.system?.track?.length ?? 0);
+        if (!Array.isArray(states) || states.length !== len) {
+          states.length = len; states.fill("empty");
+        }
         const current = states[index] ?? "empty";
         const table = {
           left:      { empty:"outline", outline:"empty", fill:"outline", slash:"outline", cross:"outline" },

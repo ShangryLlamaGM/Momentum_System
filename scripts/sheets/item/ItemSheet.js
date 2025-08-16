@@ -11,7 +11,8 @@ export class MomentumItemSheet extends foundry.applications.api.DocumentSheetV2 
     });
   }
 
-  static TEMPLATE = sysPath("templates/sheets/item.hbs");
+  // LAZY getter to avoid touching game.system during module evaluation
+  static get TEMPLATE() { return sysPath("templates/sheets/item.hbs"); }
 
   async _prepareContext(options) {
     const ctx = await super._prepareContext(options);
