@@ -1,9 +1,8 @@
 {
   "id": "momentum",
-  "name": "momentum",
   "title": "Momentum",
-  "description": "Momentum v13 system with ApplicationV2 + Handlebars mixin, modular tracks, facets, and currency edits.",
-  "version": "0.0.5",
+  "description": "Momentum v13 system foundation with modular tracks (CORE/EDGE/FRAME), facets, parent/child references, and currency edits.",
+  "version": "0.0.34",
   "license": "MIT",
   "authors": [
     {
@@ -11,8 +10,8 @@
     }
   ],
   "url": "https://example.com",
-  "manifest": "https://example.com/system.json",
-  "download": "https://example.com/momentum.zip",
+  "manifest": "https://raw.githubusercontent.com/ShangryLlamaGM/Momentum_System/main/system.json",
+  "download": "https://github.com/ShangryLlamaGM/Momentum_System/archive/refs/heads/main.zip",
   "compatibility": {
     "minimum": "13",
     "verified": "13",
