@@ -2,7 +2,7 @@
   "id": "momentum",
   "title": "Momentum",
   "description": "Momentum v13 system foundation with modular tracks (CORE/EDGE/FRAME), facets, parent/child references, and currency edits.",
-  "version": "0.0.4",
+  "version": "0.0.37",
   "license": "MIT",
   "authors": [
     {
