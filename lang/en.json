@@ -1,20 +1,36 @@
 {
-  "MOMENTUM.SystemName": "Momentum",
-  "MOMENTUM.Setting.EnableEdges": "Enable EDGEs",
-  "MOMENTUM.Setting.EnableFrames": "Enable FRAMEs",
-  "MOMENTUM.Core": "CORE",
-  "MOMENTUM.Edge": "EDGE",
-  "MOMENTUM.Frame": "FRAME",
-  "MOMENTUM.Anchors": "Anchors",
-  "MOMENTUM.Aspects": "Aspects",
-  "MOMENTUM.Resources": "Resources",
-  "MOMENTUM.Currencies": "Currencies",
-  "MOMENTUM.Tags": "Tags",
-  "MOMENTUM.Assets": "Assets",
-  "MOMENTUM.Boons": "Boons",
-  "MOMENTUM.Banes": "Banes",
-  "MOMENTUM.Wounds": "Wounds",
-  "MOMENTUM.Conditions": "Conditions",
-  "MOMENTUM.Powers": "Powers",
-  "MOMENTUM.Value": "Value"
+  "MOMENTUM": {
+    "Anchors": "Anchors",
+    "Aspects": "Aspects",
+    "Resources": "Resources",
+    "Currencies": "Currencies",
+    "Boons": "Boons",
+    "Banes": "Banes",
+    "Wounds": "Wounds",
+    "Conditions": "Conditions",
+    "Powers": "Powers",
+    "Amount": "Amount",
+    "Track": "Track",
+    "Currency": "Currency"
+  },
+  "TYPES": {
+    "Actor": {
+      "character": "Character",
+      "threat": "Threat"
+    },
+    "Item": {
+      "anchor": "Anchor",
+      "aspect": "Aspect",
+      "resource": "Resource",
+      "asset": "Asset",
+      "boon": "Boon",
+      "bane": "Bane",
+      "wound": "Wound",
+      "condition": "Condition",
+      "power": "Power",
+      "tag": "Tag",
+      "facet": "Facet",
+      "currency": "Currency"
+    }
+  }
 }

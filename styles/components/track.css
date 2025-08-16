@@ -1,0 +1,26 @@
+.track { display: flex; align-items: center; gap: 0.5rem; user-select: none; }
+.track .track-cells { display: flex; gap: 4px; }
+.track .track-value { font-weight: 700; padding: 0 0.25rem; border: 1px solid var(--border); border-radius: 6px; }
+.track-cell { width: 18px; height: 18px; position: relative; cursor: pointer; outline: none; border: 1px solid var(--border); border-radius: 4px; }
+.track-cell:focus { box-shadow: 0 0 0 2px rgba(255,255,255,0.2), 0 0 0 4px rgba(0,0,0,0.4) inset; }
+.shape-square { border-radius: 3px; }
+.shape-circle { border-radius: 50%; }
+.shape-triangle { width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-bottom: 18px solid var(--border); background: transparent; border-radius: 0; }
+.shape-triangle.track-cell { border: none; }
+.color-core  { --accent: var(--core-color); }
+.color-edge  { --accent: var(--edge-color); }
+.color-frame { --accent: var(--frame-color); }
+.track-cell.state-empty  { background: transparent; }
+.track-cell.state-outline{ box-shadow: inset 0 0 0 2px var(--accent); background: transparent; }
+.track-cell.state-fill   { background: var(--accent); }
+.track-cell.state-slash::after, .track-cell.state-cross::before, .track-cell.state-cross::after { content: ""; position: absolute; left: 2px; right: 2px; top: 50%; height: 2px; background: var(--accent); }
+.track-cell.state-cross::before { transform: rotate(45deg); }
+.track-cell.state-cross::after  { transform: rotate(-45deg); }
+.track-cell.state-slash::after  { transform: rotate(-25deg); }
+.shape-triangle.state-empty  { border-bottom-color: var(--border); }
+.shape-triangle.state-outline{ border-bottom-color: transparent; box-shadow: 0 0 0 0 transparent; }
+.shape-triangle.state-fill   { border-bottom-color: var(--accent); }
+.shape-triangle.state-slash::after, .shape-triangle.state-cross::before, .shape-triangle.state-cross::after { content: ""; position: absolute; width: 18px; height: 2px; background: var(--accent); left: -9px; top: 7px; }
+.shape-triangle.state-cross::before { transform: rotate(45deg); }
+.shape-triangle.state-cross::after  { transform: rotate(-45deg); }
+.shape-triangle.state-slash::after  { transform: rotate(-25deg); }

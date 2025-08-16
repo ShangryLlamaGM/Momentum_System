@@ -1,32 +1,10 @@
-{{!-- Track widget partial --}}
-{{#if item.system.track.enabled}}
-  {{#let (concat "track " (if (eq item.system.track.color "red") "track-core" (if (eq item.system.track.color "green") "track-edge" "track-frame"))) as |trackClass|}}
-  <div class="{{trackClass}}" data-item-id="{{item.id}}">
-    {{#if item.system.track.showValueBadge}}
-      {{#if (eq item.system.track.badgePosition "before")}}
-        <div class="track-badge"><span class="track-badge-value">{{item.system._computedValue}}</span></div>
-      {{/if}}
-    {{/if}}
-
-    <div class="track-cells">
-      {{#each item.system.track.states as |state idx|}}
-        {{#if (eq item.system.track.shape "triangle")}}
-          <div class="track-cell shape-triangle color-{{item.system.track.colorFamily}} state-{{state}}"
-               data-index="{{idx}}"></div>
-        {{else if (eq item.system.track.shape "square")}}
-          <div class="track-cell shape-square color-{{item.system.track.colorFamily}} state-{{state}}"
-               data-index="{{idx}}"></div>
-        {{else}}
-          <div class="track-cell shape-circle color-{{item.system.track.colorFamily}} state-{{state}}"
-               data-index="{{idx}}"></div>
-        {{/if}}
-      {{/each}}
-    </div>
-
-    {{#if item.system.track.showValueBadge}}
-      {{#if (ne item.system.track.badgePosition "before")}}
-        <div class="track-badge"><span class="track-badge-value">{{item.system._computedValue}}</span></div>
-      {{/if}}
-    {{/if}}
+<div class="track color-{{item.system.track.color}}">
+  {{#if item.system.track.showValueBadge}}
+    <span class="track-value" data-position="{{item.system.track.badgePosition}}">{{item.system.track.value}}</span>
+  {{/if}}
+  <div class="track-cells">
+    {{#each item.system.track.states as |s i|}}
+      <div class="track-cell shape-{{../item.system.track.shape}} state-{{s}}" data-index="{{i}}" aria-label="Track cell {{i}}"></div>
+    {{/each}}
   </div>
-{{/if}}
+</div>

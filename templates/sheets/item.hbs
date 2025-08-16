@@ -1,0 +1,24 @@
+<section class="momentum sheet">
+  <header class="sheet-header"><h1>{{item.name}}</h1></header>
+  <div class="sheet-body">
+    {{#if itemVM.system.track.enabled}}
+      <h3>{{localize "MOMENTUM.Track"}}</h3>
+      {{> (lookup partials "track") item=itemVM}}
+    {{/if}}
+
+    {{#if (eq item.type "currency")}}
+      <h3>{{localize "MOMENTUM.Currency"}}</h3>
+      <label><span>{{localize "MOMENTUM.Amount"}}</span>
+        <input class="currency-amount" type="number" step="1" value="{{itemVM.system.amount}}" /></label>
+    {{/if}}
+
+    {{#if itemVM.system.facets.length}}
+      <h3>{{localize "MOMENTUM.Facets"}}</h3>
+      <ul class="facets">
+        {{#each itemVM.system.facets as |f i|}}
+          <li class="facet-chip"><em>{{f.key}}{{#if f.level}}{{f.level}}{{/if}}</em></li>
+        {{/each}}
+      </ul>
+    {{/if}}
+  </div>
+</section>

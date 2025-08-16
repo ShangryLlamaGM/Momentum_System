@@ -1,0 +1,110 @@
+<section class="momentum sheet">
+  <header class="sheet-header"><h1>{{actor.name}}</h1></header>
+  <div class="sheet-body">
+    <section>
+      <h3>{{localize "MOMENTUM.Anchors"}}</h3>
+      {{#each momentum.anchors as |it|}}
+        <article class="item-card" data-item-id="{{it.id}}">
+          <header><span class="name">{{it.name}}</span></header>
+          {{> (lookup ../partials "track") item=it}}
+          {{#if it.system.facets.length}}
+            <div class="facets">
+              {{#each it.system.facets as |f|}}<span class="facet-chip"><em>{{f.key}}{{#if f.level}}{{f.level}}{{/if}}</em></span>{{/each}}
+            </div>
+          {{/if}}
+        </article>
+      {{/each}}
+    </section>
+
+    <section>
+      <h3>{{localize "MOMENTUM.Aspects"}}</h3>
+      {{#each momentum.aspects as |it|}}
+        <article class="item-card" data-item-id="{{it.id}}">
+          <header><span class="name">{{it.name}}</span></header>
+          {{> (lookup ../partials "track") item=it}}
+          {{#if it.system.facets.length}}
+            <div class="facets">
+              {{#each it.system.facets as |f|}}<span class="facet-chip"><em>{{f.key}}{{#if f.level}}{{f.level}}{{/if}}</em></span>{{/each}}
+            </div>
+          {{/if}}
+        </article>
+      {{/each}}
+    </section>
+
+    <section>
+      <h3>{{localize "MOMENTUM.Resources"}}</h3>
+      {{#each momentum.resources as |it|}}
+        <article class="item-card" data-item-id="{{it.id}}">
+          <header><span class="name">{{it.name}}</span></header>
+          {{> (lookup ../partials "track") item=it}}
+          {{#if it.system.facets.length}}
+            <div class="facets">
+              {{#each it.system.facets as |f|}}<span class="facet-chip"><em>{{f.key}}{{#if f.level}}{{f.level}}{{/if}}</em></span>{{/each}}
+            </div>
+          {{/if}}
+        </article>
+      {{/each}}
+    </section>
+
+    <section>
+      <h3>{{localize "MOMENTUM.Currencies"}}</h3>
+      {{#each momentum.currencies as |it|}}
+        <article class="item-card" data-item-id="{{it.id}}">
+          <header><span class="name">{{it.name}}</span></header>
+          <label><span>{{localize "MOMENTUM.Amount"}}</span>
+            <input class="currency-amount" type="number" step="1" value="{{it.system.amount}}" /></label>
+        </article>
+      {{/each}}
+    </section>
+
+    {{#if momentum.tags.boons.length}}
+      <section><h3>{{localize "MOMENTUM.Boons"}}</h3>
+        {{#each momentum.tags.boons as |it|}}
+          <article class="item-card" data-item-id="{{it.id}}"><header><span class="name">{{it.name}}</span></header>
+            {{> (lookup ../partials "track") item=it}}
+          </article>
+        {{/each}}
+      </section>
+    {{/if}}
+
+    {{#if momentum.tags.banes.length}}
+      <section><h3>{{localize "MOMENTUM.Banes"}}</h3>
+        {{#each momentum.tags.banes as |it|}}
+          <article class="item-card" data-item-id="{{it.id}}"><header><span class="name">{{it.name}}</span></header>
+            {{> (lookup ../partials "track") item=it}}
+          </article>
+        {{/each}}
+      </section>
+    {{/if}}
+
+    {{#if momentum.tags.wounds.length}}
+      <section><h3>{{localize "MOMENTUM.Wounds"}}</h3>
+        {{#each momentum.tags.wounds as |it|}}
+          <article class="item-card" data-item-id="{{it.id}}"><header><span class="name">{{it.name}}</span></header>
+            {{> (lookup ../partials "track") item=it}}
+          </article>
+        {{/each}}
+      </section>
+    {{/if}}
+
+    {{#if momentum.tags.conditions.length}}
+      <section><h3>{{localize "MOMENTUM.Conditions"}}</h3>
+        {{#each momentum.tags.conditions as |it|}}
+          <article class="item-card" data-item-id="{{it.id}}"><header><span class="name">{{it.name}}</span></header>
+            {{> (lookup ../partials "track") item=it}}
+          </article>
+        {{/each}}
+      </section>
+    {{/if}}
+
+    {{#if momentum.tags.powers.length}}
+      <section><h3>{{localize "MOMENTUM.Powers"}}</h3>
+        {{#each momentum.tags.powers as |it|}}
+          <article class="item-card" data-item-id="{{it.id}}"><header><span class="name">{{it.name}}</span></header>
+            {{> (lookup ../partials "track") item=it}}
+          </article>
+        {{/each}}
+      </section>
+    {{/if}}
+  </div>
+</section>
